@@ -5,21 +5,19 @@ const Board = () => {
     const [player, setPlayer] = useState("X")
     const [history, setHistory] = useState([]) // lưu trữ lịch sử các lượt đánh
     const [canUndo, setCanUndo] = useState(false)
-    const [winningSquares, setWinningSquares] = useState([])
     const handlePlay = (position) => {
-
         const newGame = game.map((g, index) => {
             if (position === index) {
                 return player
             }
             return g
         })
-
+        // đánh mới thì sẽ cập nhật lịch sử
         const newHistory = [...history, game]
+        // để đảm bảo chỉ có một lượt mới nhất
         if (newHistory.length > 1) {
             newHistory.shift()
         }
-
         setGame(newGame)
         setPlayer(player === "X" ? "O" : "X")
         setHistory(newHistory)
@@ -30,9 +28,10 @@ const Board = () => {
         if (!canUndo || history.length === 0) {
             return
         }
-
+        // nếu có thể undo ta lấy lượt cuối
         const lastHistory = history[history.length - 1]
         setGame(lastHistory)
+
         setPlayer(player === "X" ? "O" : "X")
         setHistory(history.slice(0, history.length - 1)) // loại bỏ lượt đánh cuối cùng khỏi lịch sử
         setCanUndo(false) // không thể undo sau khi undo lượt đánh trước đó
@@ -52,7 +51,6 @@ const Board = () => {
         for (let i = 0; i < listWin.length; i++) {
             const [p1, p2, p3] = listWin[i]
             if (game[p1] === game[p2] && game[p2] === game[p3]) {
-                // set người chiến thắng
                 return game[p1]
             }
         }
