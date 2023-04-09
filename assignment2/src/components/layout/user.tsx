@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom'
-
+import { Link } from 'react-router-dom'
 const UserLayout = () => {
     return <>
         {/* Header */}
@@ -7,6 +7,8 @@ const UserLayout = () => {
             <div className="container mx-auto flex items-center gap-4">
                 <img className='w-[70px]' src="/logo.png" alt="" />
                 <input className='grow' type="text" placeholder='Tìm kiếm' />
+                <Link to={`http://localhost:5173/signin`}>Đăng nhập</Link>
+                <Link to={"http://localhost:5173/signup"}>Đăng Ký</Link>
             </div>
         </header>
 

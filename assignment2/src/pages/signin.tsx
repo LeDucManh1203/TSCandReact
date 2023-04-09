@@ -2,32 +2,36 @@
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as Yup from "yup"
-import { SignupForm, SignupSchema } from "../models"
-import { useNavigate } from "react-router-dom"
-import { signup } from "../api/auth"
+import { useNavigate } from "react-router-dom";
+import { SigninForm, SigninSchema, SignupForm, SignupSchema } from "../models"
+import  { signin } from "../api/auth"
+import { useLocalStorage } from "../hooks"
+import { useEffect } from "react";
 
 
-const Signup = () => {
+const Signin = () => {
 
-    const { register, handleSubmit, formState: { errors } } = useForm<SignupForm>(
+    const { register, handleSubmit, formState: { errors } } = useForm<SigninForm>(
         {
-            resolver: yupResolver(SignupSchema)
+            resolver: yupResolver(SigninSchema)
         }
     )
-
     const navigate = useNavigate()
+    const [user, setUser] = useLocalStorage("user", null)
 
-    const onSubmit = async (data: SignupForm) => {
-       try {
-        const response = await signup(data)
-        console.log(response);
-        navigate('/signin')
+    const onSubmit = async (data: SigninForm) => {
         
-    } catch (error) {
-        console.log(error);
-        
-       }
-
+            const {data: {accessToken, user}} = await signin(data)
+            setUser({
+                accessToken,
+                ...user             
+                /*khi này nó sẽ trả về 2 phần  riêng biệt, để accesstoken nằm trong user thì tha thêm ... trước user*/
+            })        
+                if (user.role !== 'admin') {
+                    navigate('/')
+                } else {
+                    navigate('/admin')
+                }
     }
 
     return <>
@@ -106,37 +110,7 @@ const Signup = () => {
                         </div>
 
                         <form action="#" className="mt-8 grid grid-cols-6 gap-6" onSubmit={handleSubmit(onSubmit)}>
-                            <div className="col-span-6 sm:col-span-3">
-                                <label
-                                    htmlFor="FirstName"
-                                    className="block text-sm font-medium text-gray-700"
-                                >
-                                     Name
-                                </label>
-
-                                <input
-                                    {...register("firstName", { required: true })}
-                                    className="mt-1 w-full rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm"
-                                />
-                                <p className="text-red-600 text-[20px]">{errors.firstName && errors.firstName.message}</p>
-                            </div>
-
-                            <div className="col-span-6 sm:col-span-3">
-                                <label
-                                    htmlFor="LastName"
-                                    className="block text-sm font-medium text-gray-700"
-                                >
-                                    Role
-                                </label>
-
-                                <input
-                                    {...register("role", { required: true })}
-
-                                    className="mt-1 w-full rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm"
-                                />
-                                <p className="text-red-600 text-[20px]">{errors.role && errors.role.message}</p>
-
-                            </div>
+                           
 
                             <div className="col-span-6">
                                 <label htmlFor="Email" className="block text-sm font-medium text-gray-700">
@@ -167,33 +141,15 @@ const Signup = () => {
                                 <p className="text-red-600 text-[20px]">{errors.password && errors.password.message}</p>
                             </div>
 
-                            <div className="col-span-6 sm:col-span-3">
-                                <label
-                                    htmlFor="PasswordConfirmation"
-                                    className="block text-sm font-medium text-gray-700"
-                                >
-                                    Password Confirmation
-                                </label>
-
-                                <input
-                                    type="password"
-                                    {...register("confirmPassword", { required: true })}
-
-                                    className="mt-1 w-full rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm"
-                                />
-                                <p className="text-red-600 text-[20px]">{errors.confirmPassword && errors.confirmPassword.message}</p>
-                            </div>
+                          
                             <div className="col-span-6 sm:flex sm:items-center sm:gap-4">
                                 <button
                                     className="inline-block shrink-0 rounded-md border border-blue-600 bg-blue-600 px-12 py-3 text-sm font-medium text-white transition hover:bg-transparent hover:text-blue-600 focus:outline-none focus:ring active:text-blue-500"
                                 >
-                                    Create an account
+                                    Đăng nhập
                                 </button>
 
-                                <p className="mt-4 text-sm text-gray-500 sm:mt-0">
-                                    Already have an account?
-                                    <a href="#" className="text-gray-700 underline">Log in</a>.
-                                </p>
+                               
                             </div>
                         </form>
                     </div>
@@ -202,4 +158,4 @@ const Signup = () => {
         </section>
     </>
 }
-export default Signup;
+export default Signin;
